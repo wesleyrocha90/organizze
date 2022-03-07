@@ -6,36 +6,48 @@ import 'package:organizze/providers/transactions_provider.dart';
 import 'package:provider/provider.dart';
 
 class TransactionFormPage extends StatefulWidget {
-  const TransactionFormPage({Key? key}) : super(key: key);
+  final bool _isUpdate;
+  final TransactionModel _transaction;
+
+  TransactionFormPage({Key? key, Object? transaction})
+      : _transaction = transaction != null ? transaction as TransactionModel : TransactionModel.empty(),
+        _isUpdate = transaction != null,
+        super(key: key);
 
   @override
-  State<TransactionFormPage> createState() => _TransactionFormPageState();
+  State<TransactionFormPage> createState() => _TransactionFormPageState(_transaction, _isUpdate);
 }
 
 class _TransactionFormPageState extends State<TransactionFormPage> {
-  final _categories = [
+  var _categories = [
     {'id': 0, 'title': 'Salário'},
     {'id': 1, 'title': 'Moradia'},
     {'id': 2, 'title': 'Lazer'},
   ];
 
-  TransactionModel? _transactionModel;
-  final _transactionTypeSelection = [true, false];
-  final _descriptionController = TextEditingController(text: '');
+  var _isUpdate;
+  var _typeSelection;
+  var _descriptionController;
   var _categorySelected;
-  DateTime _datetime = DateTime.now();
-  final _valueController = TextEditingController(text: '');
+  var _datetime;
+  var _valueController;
+
+  _TransactionFormPageState(TransactionModel _transaction, bool _isUpdate) {
+    this._isUpdate = _isUpdate;
+    _typeSelection = _transaction.type == TransactionType.EXPENSE ? [true, false] : [false, true];
+    _descriptionController = TextEditingController(text: _transaction.title);
+    _categorySelected = _transaction.description.isNotEmpty ? _categories.indexWhere((item) => item['title'] == _transaction.description) : null;
+    _datetime = _transaction.date;
+    _valueController = TextEditingController(text: _transaction.value > 0 ? _transaction.value.toString() : '');
+  }
 
   _onSaveClicked() {
-    var transactionType = (_transactionTypeSelection[0]) ? TransactionType.EXPENSE : TransactionType.INCOME;
-    String category = _categories[_categorySelected]['title'].toString();
-
     Provider.of<TransactionsProvider>(context, listen: false).addItem(
       TransactionModel(
         _datetime,
-        transactionType,
+        _typeSelection[0] ? TransactionType.EXPENSE : TransactionType.INCOME,
         _descriptionController.text,
-        category,
+        _categories[_categorySelected]['title'].toString(),
         double.parse(_valueController.text),
         false,
       ),
@@ -44,30 +56,11 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   }
 
   _onUpdateClicked() {
-    if (_transactionModel != null) {
-      _transactionModel!.type = (_transactionTypeSelection[0]) ? TransactionType.EXPENSE : TransactionType.INCOME;
-      _transactionModel!.date = _datetime;
-      _transactionModel!.title = _descriptionController.text;
-      _transactionModel!.description = _categories[_categorySelected]['title'].toString();
-      _transactionModel!.value = double.parse(_valueController.text);
-      Provider.of<TransactionsProvider>(context, listen: false).updateItem(_transactionModel!);
-      Navigator.pop(context);
-    }
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    Object? argModel = ModalRoute.of(context)!.settings.arguments;
-    if (argModel != null) {
-      _transactionModel = argModel as TransactionModel;
-      _transactionTypeSelection.fillRange(0, _transactionTypeSelection.length, false);
-      _transactionTypeSelection[_transactionModel!.type == TransactionType.EXPENSE ? 0 : 1] = true;
-      _datetime = _transactionModel!.date;
-      _descriptionController.text = _transactionModel!.title;
-      _categorySelected = _categories.indexWhere((item) => item['title'] == _transactionModel!.description);
-      _valueController.text = _transactionModel!.value.toStringAsFixed(0);
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastrar Lançamento'),
@@ -84,24 +77,24 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                     children: [
                       Container(
                         child: Text('Despesa', style: TextStyle(color: Colors.white)),
-                        color: Colors.red.withOpacity(_transactionTypeSelection[0] ? 1 : .5),
+                        color: Colors.red.withOpacity(_typeSelection[0] ? 1 : .5),
                         width: double.infinity,
                         height: double.infinity,
                         alignment: Alignment.center,
                       ),
                       Container(
                         child: Text('Receita', style: TextStyle(color: Colors.white)),
-                        color: Colors.green.withOpacity(_transactionTypeSelection[1] ? 1 : .5),
+                        color: Colors.green.withOpacity(_typeSelection[1] ? 1 : .5),
                         width: double.infinity,
                         height: double.infinity,
                         alignment: Alignment.center,
                       ),
                     ],
-                    isSelected: _transactionTypeSelection,
+                    isSelected: _typeSelection,
                     onPressed: (index) {
                       setState(() {
-                        _transactionTypeSelection.fillRange(0, _transactionTypeSelection.length, false);
-                        _transactionTypeSelection[index] = true;
+                        _typeSelection.fillRange(0, _typeSelection.length, false);
+                        _typeSelection[index] = true;
                       });
                     },
                     constraints: BoxConstraints(
@@ -197,14 +190,14 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                 Container(
                   height: 40,
                   width: double.infinity,
-                  child: (argModel == null)
+                  child: _isUpdate
                       ? ElevatedButton(
-                          onPressed: _onSaveClicked,
-                          child: Text('Adicionar'),
-                        )
-                      : ElevatedButton(
                           onPressed: _onUpdateClicked,
                           child: Text('Atualizar'),
+                        )
+                      : ElevatedButton(
+                          onPressed: _onSaveClicked,
+                          child: Text('Adicionar'),
                         ),
                 ),
               ],

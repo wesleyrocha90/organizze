@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => TransactionListPage(),
-        '/form': (context) => TransactionFormPage(),
+        '/form': (context) => TransactionFormPage(transaction: ModalRoute.of(context)?.settings.arguments),
       },
     );
   }
