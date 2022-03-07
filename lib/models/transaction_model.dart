@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 class TransactionModel {
   String uuid;
+  DateTime date;
   TransactionType type;
   String title;
   String description;
@@ -10,5 +11,6 @@ class TransactionModel {
   bool isDone;
 
   TransactionModel(this.type, this.title, this.description, this.value, this.isDone)
-    : this.uuid = Uuid().v4();
+      : this.uuid = Uuid().v4(),
+        this.date = DateTime.now();
 }
