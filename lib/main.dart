@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:organizze/pages/transaction_form_page.dart';
 import 'package:organizze/pages/transaction_list_page.dart';
 import 'package:organizze/providers/transactions_provider.dart';
@@ -18,6 +19,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      localizationsDelegates: [
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+      ],
+      supportedLocales: [Locale('pt', 'BR')],
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

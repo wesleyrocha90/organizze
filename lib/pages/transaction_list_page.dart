@@ -16,6 +16,7 @@ class TransactionListPage extends StatefulWidget {
 class _TransactionListPageState extends State<TransactionListPage> {
   @override
   Widget build(BuildContext context) {
+    print('building');
     return Scaffold(
       appBar: AppBar(
         title: Text('Lançamentos'),
@@ -38,9 +39,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          Navigator.pushNamed(context, '/form');
-        },
+        onPressed: () => Navigator.pushNamed(context, '/form'),
       ),
     );
   }
@@ -51,7 +50,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: (context) {},
+            onPressed: (context) => Provider.of<TransactionsProvider>(context, listen: false).deleteItem(item),
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
@@ -65,6 +64,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
         ],
       ),
       child: ListTile(
+        onTap: () => Navigator.pushNamed(context, '/form', arguments: item),
         leading: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -142,9 +142,21 @@ Widget buildFooter() {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.actualBalance())),
+              Text(
+                NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.actualBalance()),
+                style: TextStyle(
+                  color: value.actualBalance() < 0 ? Colors.red : Colors.green,
+                  fontWeight: FontWeight.bold,
+                )
+              ),
               SizedBox(height: 5),
-              Text(NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.foreseeBalance())),
+              Text(
+                NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.foreseeBalance()),
+                style: TextStyle(
+                  color: value.foreseeBalance() < 0 ? Colors.red : Colors.green,
+                  fontWeight: FontWeight.bold,
+                )
+              ),
             ],
           );
         }),

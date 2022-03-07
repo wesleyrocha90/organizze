@@ -10,7 +10,6 @@ class TransactionModel {
   double value;
   bool isDone;
 
-  TransactionModel(this.type, this.title, this.description, this.value, this.isDone)
-      : this.uuid = Uuid().v4(),
-        this.date = DateTime.now();
+  TransactionModel(this.date, this.type, this.title, this.description, this.value, this.isDone)
+      : this.uuid = Uuid().v4();
 }
