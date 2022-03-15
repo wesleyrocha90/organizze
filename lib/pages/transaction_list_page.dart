@@ -6,17 +6,12 @@ import 'package:organizze/models/transaction_model.dart';
 import 'package:organizze/providers/transactions_provider.dart';
 import 'package:provider/provider.dart';
 
-class TransactionListPage extends StatefulWidget {
-  const TransactionListPage({Key? key}) : super(key: key);
+class TransactionListPage extends StatelessWidget {
 
-  @override
-  State<TransactionListPage> createState() => _TransactionListPageState();
-}
-
-class _TransactionListPageState extends State<TransactionListPage> {
+  
   @override
   Widget build(BuildContext context) {
-    print('building');
+    debugPrint('building');
     return Scaffold(
       appBar: AppBar(
         title: Text('Lançamentos'),
@@ -28,7 +23,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
               physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Consumer<TransactionsProvider>(builder: (context, value, child) {
                 return Column(
-                  children: [...value.transactions.map((item) => buildTransactionTile(item))],
+                  children: [...value.transactions.map((item) => buildTransactionTile(context, item))],
                 );
               }),
             ),
@@ -44,7 +39,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
     );
   }
 
-  Widget buildTransactionTile(TransactionModel item) {
+  Widget buildTransactionTile(BuildContext context, TransactionModel item) {
     return Slidable(
       endActionPane: ActionPane(
         motion: const ScrollMotion(),
@@ -137,29 +132,27 @@ Widget buildFooter() {
           ],
         ),
         Expanded(child: Container()),
-        Consumer<TransactionsProvider>(builder: (context, value, child) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.actualBalance()),
-                style: TextStyle(
-                  color: value.actualBalance() < 0 ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.bold,
-                )
-              ),
-              SizedBox(height: 5),
-              Text(
-                NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.foreseeBalance()),
-                style: TextStyle(
-                  color: value.foreseeBalance() < 0 ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.bold,
-                )
-              ),
-            ],
-          );
-        }),
+        Consumer<TransactionsProvider>(
+          builder: (context, value, child) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.actualBalance()),
+                    style: TextStyle(
+                      color: value.actualBalance() < 0 ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    )),
+                SizedBox(height: 5),
+                Text(NumberFormat.currency(locale: 'pt-BR', decimalDigits: 2, symbol: 'R\$').format(value.foreseeBalance()),
+                    style: TextStyle(
+                      color: value.foreseeBalance() < 0 ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    )),
+              ],
+            );
+          },
+        ),
         SizedBox(width: 20),
       ],
     ),
